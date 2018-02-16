@@ -4,7 +4,7 @@
 #include "Shape.h"
 
 
-Shape::Shape(const u_short body[N][N]) {
+Shape::Shape(const int body[N][N]) {
     for(size_t i=0; i < N; ++i){
         for(size_t j=0; j < N; ++j){
             this->body[i][j] = body[i][j];
@@ -24,7 +24,7 @@ Shape::Shape(const Shape& rhs){
 }
 
 void Shape::rotate() {
-    u_short temp[N][N] = {};
+    int temp[N][N] = {};
     for(size_t i=0; i < N; ++i){
         for(size_t j=0; j < N; ++j){
             temp[i][j] = body[j][i];
@@ -41,10 +41,10 @@ void Shape::rotate() {
 }
 
 Rect Shape::calc_rect() {
-    u_short left = 4, top = 4;
-    u_short right = 0, down = 0;
-    for (u_short i = 0; i < N; ++i) {
-        for (u_short j = 0; j < N; ++j) {
+    int left = 4, top = 4;
+    int right = 0, down = 0;
+    for (int i = 0; i < N; ++i) {
+        for (int j = 0; j < N; ++j) {
             if (body[i][j] == 1) {
                 if (i < top) {
                     top = i;
@@ -65,7 +65,7 @@ Rect Shape::calc_rect() {
     Rect rect;
     rect.left = left;
     rect.top = top;
-    rect.w = right - left + (u_short)1;
-    rect.h = down - top + (u_short)1;
+    rect.w = right - left + (int)1;
+    rect.h = down - top + (int)1;
     return rect;
 }

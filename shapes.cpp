@@ -6,35 +6,35 @@
 #include "Constants.h"
 #include "shapes.h"
 
-const u_short i_shape[N][N] = {
+const int i_body[N][N] = {
         {0, 1, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 0, 0}
 };
 
-const u_short l_shape[N][N] = {
+const int l_body[N][N] = {
         {0, 1, 0, 0},
         {0, 1, 0, 0},
         {0, 1, 1, 0},
         {0, 0, 0, 0}
 };
 
-const u_short z_shape[N][N] = {
+const int z_body[N][N] = {
         {1, 1, 0, 0},
         {0, 1, 1, 0},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
 };
 
-const u_short t_shape[N][N] = {
+const int t_body[N][N] = {
         {1, 1, 1, 0},
         {0, 1, 0, 0},
         {0, 0, 0, 0},
         {0, 0, 0, 0}
 };
 
-const u_short o_shape[N][N] = {
+const int o_body[N][N] = {
         {1, 1, 0, 0},
         {1, 1, 0, 0},
         {0, 0, 0, 0},

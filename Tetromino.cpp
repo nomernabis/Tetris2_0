@@ -6,11 +6,10 @@
 
 
 Tetromino::Tetromino(ShapeManager& s): shapeManager{s} {
-    shape = shapeManager.get(t);
-    std::cout << "positions " << shape.rect.left << std::endl;
+
 }
 
-void Tetromino::move(int dx, int dy, u_short map[H][W]) {
+void Tetromino::move(int dx, int dy, int map[H][W]) {
 
 
     Position temp = shape.position;
@@ -34,7 +33,7 @@ void Tetromino::move(int dx, int dy, u_short map[H][W]) {
     }
 }
 
-bool Tetromino::intersects(Position pos, u_short shape[N][N], u_short map[H][W]) {
+bool Tetromino::intersects(Position pos, int shape[N][N], int map[H][W]) {
     for (int i = pos.y; i < pos.y + this->shape.rect.h; ++i) {
         for (int j = pos.x; j < pos.x + this->shape.rect.w; ++j) {
             if (shape[i - pos.y + this->shape.rect.top][j - pos.x + this->shape.rect.left] == 1 && map[i][j] == 2) {
@@ -45,7 +44,7 @@ bool Tetromino::intersects(Position pos, u_short shape[N][N], u_short map[H][W])
     return false;
 }
 
-void Tetromino::draw(u_short map[H][W]) {
+void Tetromino::draw(int map[H][W]) {
     for (size_t i = 0; i < N; ++i) {
         for (size_t j = 0; j < N; ++j) {
             if (shape.body[i][j] == 1) {
@@ -55,7 +54,7 @@ void Tetromino::draw(u_short map[H][W]) {
     }
 }
 
-void Tetromino::clear(u_short map[H][W]) {
+void Tetromino::clear(int map[H][W]) {
 
     for (size_t i = shape.position.y; i < shape.position.y + N; ++i) {
         for (size_t j = shape.position.x; j < shape.position.x + N; ++j) {
@@ -66,7 +65,7 @@ void Tetromino::clear(u_short map[H][W]) {
     }
 }
 
-void Tetromino::fix(u_short map[H][W]) {
+void Tetromino::fix(int map[H][W]) {
     for (int i = shape.position.y; i < shape.position.y + shape.rect.h; ++i) {
         for (int j = shape.position.x; j < shape.position.x + shape.rect.w; ++j) {
             if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1) {
@@ -82,7 +81,7 @@ void Tetromino::fix(u_short map[H][W]) {
  * 1)Try rotate
  * 2)Detect part intersected
  * */
-void Tetromino::rotate(u_short map[H][W]) {
+void Tetromino::rotate(int map[H][W]) {
 
     Shape temp = shape;
     temp.rotate();
@@ -112,4 +111,9 @@ void Tetromino::rotate(u_short map[H][W]) {
         }
     }
 
+}
+
+void Tetromino::set_type(Type t) {
+    type = t;
+    shape = shapeManager.get(type);
 }
