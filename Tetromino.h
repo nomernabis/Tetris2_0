@@ -5,34 +5,25 @@
 #ifndef TETRIS2_0_TETROMINO_H
 #define TETRIS2_0_TETROMINO_H
 
+
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include "Constants.h"
-
-struct Position{
-    u_short x = 0, y = 0;
-};
-
-struct Rect{
-    u_short left = 0, top = 0;
-    u_short w = 0, h = 0;
-    Rect() = default;
-};
-
-enum Type {I, L};
-extern const u_short i_shape[N][N];
-extern const u_short l_shape[N][N];
+#include "Shape.h"
+#include "ShapeManager.h"
 
 class Tetromino {
-    Position p;
     Type t = Type::I;
-    Rect rect;
-    Rect calc_rect();
+    Shape shape;
+    ShapeManager& shapeManager;
+    void fix(u_short map[H][W]);
+    bool intersects(Position pos, u_short shape[N][N], u_short map[H][W]);
 public:
-    Tetromino() = default;
+    explicit Tetromino(ShapeManager& sm);
     void draw(u_short map[H][W]);
-    void move(int dx, int dy);
+    void move(int dx, int dy, u_short map[H][W]);
     void clear(u_short map[H][W]);
+    void rotate(u_short map[H][W]);
 };
 
 

@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Constants.h"
 #include "Tetromino.h"
+#include "ShapeManager.h"
+#include "shapes.h"
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -21,7 +23,7 @@ void draw(u_short map[H][W], sf::RenderWindow& window){
 
     for(int i=0; i < H; ++i){
         for(int j=0; j < W; ++j){
-            if(map[i][j] == 1){
+            if(map[i][j] != 0){
                 cell.setPosition(25*j, 25*i);
                 window.draw(cell);
             }
@@ -29,9 +31,27 @@ void draw(u_short map[H][W], sf::RenderWindow& window){
     }
 }
 
+
+
+
 int main() {
+
+    ShapeManager shape_manager;
+
+    Shape m_i_shape(i_shape);
+    Shape m_l_shape(l_shape);
+    Shape m_z_shape(z_shape);
+    Shape m_t_shape(t_shape);
+    Shape m_o_shape(o_shape);
+
+    shape_manager.add(Type::I, m_i_shape);
+    shape_manager.add(Type::L, m_l_shape);
+    shape_manager.add(Type::Z, m_z_shape);
+    shape_manager.add(Type::T, m_t_shape);
+    shape_manager.add(Type::O, m_o_shape);
+
     u_short map[H][W] = {};
-    Tetromino t;
+    Tetromino t(shape_manager);
 
     sf::RenderWindow window(sf::VideoMode(250, 500), "Tetris");
     window.setFramerateLimit(60);
@@ -45,16 +65,17 @@ int main() {
                 window.close();
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
-                t.move(0, 1);
+                t.move(0, 1, map);
+                print(map);
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left)){
-                t.move(-1, 0);
+                t.move(-1, 0, map);
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right)){
-                t.move(1, 0);
+                t.move(1, 0, map);
             }
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up)){
-
+                t.rotate(map);
             }
         }
         window.clear(sf::Color::White);

@@ -4,81 +4,112 @@
 #include <iostream>
 #include "Tetromino.h"
 
-const u_short i_shape[N][N] = {
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 0, 0}
-};
 
-const u_short l_shape[N][N] = {
-        {0, 1, 0, 0},
-        {0, 1, 0, 0},
-        {0, 1, 1, 0},
-        {0, 0, 0, 0}
-};
+Tetromino::Tetromino(ShapeManager& s): shapeManager{s} {
+    shape = shapeManager.get(t);
+    std::cout << "positions " << shape.rect.left << std::endl;
+}
+
+void Tetromino::move(int dx, int dy, u_short map[H][W]) {
 
 
-void Tetromino::move(int dx, int dy) {
-    rect = calc_rect();
-
-    Position temp = p;
+    Position temp = shape.position;
     temp.x += dx;
     temp.y += dy;
 
-    std::cout << rect.w << "\n";
-    if(temp.x >= 0 && temp.x + rect.w - 1 < W && temp.y >= 0 && temp.y + rect.h - 1 < H){
-        p = temp;
+    if (temp.x >= 0 && temp.x + shape.rect.w - 1 < W && temp.y >= 0 && temp.y + shape.rect.h - 1 < H) {
+        //check for collisions
+        if (!intersects(temp, shape.body, map)) {
+            shape.position = temp;
+        } else {
+            if (dy == 1) {
+                fix(map);
+            }
+        }
+    } else {
+        //move down
+        if (dy == 1) {
+            fix(map);
+        }
     }
 }
 
+bool Tetromino::intersects(Position pos, u_short shape[N][N], u_short map[H][W]) {
+    for (int i = pos.y; i < pos.y + this->shape.rect.h; ++i) {
+        for (int j = pos.x; j < pos.x + this->shape.rect.w; ++j) {
+            if (shape[i - pos.y + this->shape.rect.top][j - pos.x + this->shape.rect.left] == 1 && map[i][j] == 2) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void Tetromino::draw(u_short map[H][W]) {
-    rect = calc_rect();
-    for(size_t i=0; i < N; ++i){
-        for(size_t j=0; j < N; ++j){
-            if(i_shape[i][j] == 1){
-                map[i - rect.top + p.y][j - rect.left + p.x] = i_shape[i][j];
+    for (size_t i = 0; i < N; ++i) {
+        for (size_t j = 0; j < N; ++j) {
+            if (shape.body[i][j] == 1) {
+                map[i - shape.rect.top + shape.position.y][j - shape.rect.left + shape.position.x] = shape.body[i][j];
             }
         }
     }
 }
 
 void Tetromino::clear(u_short map[H][W]) {
-    for(size_t i = p.y; i < p.y + N; ++i){
-        for(size_t j= p.x; j < p.x + N; ++j){
-            if(map[i][j] == 1){
+
+    for (size_t i = shape.position.y; i < shape.position.y + N; ++i) {
+        for (size_t j = shape.position.x; j < shape.position.x + N; ++j) {
+            if (map[i][j] == 1) {
                 map[i][j] = 0;
             }
         }
     }
 }
 
-Rect Tetromino::calc_rect(){
-    u_short left = 4, top = 4;
-    u_short right = 0, down = 0;
-    for(u_short i=0; i < N; ++i){
-        for(u_short j=0; j < N; ++j){
-            if(i_shape[i][j] == 1){
-                if(i < top){
-                    top = i;
-                }
-                if(j < left){
-                    left = j;
-                }
-                if(i > down){
-                    down = i;
-                }
-                if(j > right){
-                    right = j;
-                }
+void Tetromino::fix(u_short map[H][W]) {
+    for (int i = shape.position.y; i < shape.position.y + shape.rect.h; ++i) {
+        for (int j = shape.position.x; j < shape.position.x + shape.rect.w; ++j) {
+            if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1) {
+                map[i][j] = 2;
             }
         }
     }
+    shape.position.x = 0;
+    shape.position.y = 0;
+}
 
-    Rect rect;
-    rect.left = left;
-    rect.top = top;
-    rect.w = right - left + 1;
-    rect.h = down - top + 1;
-    return rect;
+/*
+ * 1)Try rotate
+ * 2)Detect part intersected
+ * */
+void Tetromino::rotate(u_short map[H][W]) {
+
+    Shape temp = shape;
+    temp.rotate();
+
+    int lastX = temp.position.x + temp.rect.w - 1;
+    int lastY = temp.position.y + temp.rect.h - 1;
+
+    if(lastX < W && lastY < H){
+        if(!intersects(temp.position, temp.body, map)){
+            shape = temp;
+        }
+    } else {
+        Position temp_pos;
+        int dx = 0, dy = 0;
+        if(lastX >= W){
+            dx = (W - 1) - lastX;
+        }
+        if(lastY >= H){
+            dy = (H - 1) - lastY;
+        }
+        temp_pos.x = temp.position.x + dx;
+        temp_pos.y = temp.position.y + dy;
+
+        if(!intersects(temp_pos, temp.body, map)){
+            shape = temp;
+            move(dx, dy, map);
+        }
+    }
+
 }
