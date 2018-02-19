@@ -54,6 +54,9 @@ void Game::readInput() {
                     dy = 1;
                     break;
                 case sf::Keyboard::Up:
+                    is_rotate_clicked = true;
+                    break;
+                default:
                     break;
             }
         }
@@ -65,8 +68,12 @@ void Game::update() {
     if(dx || dy){
         tetromino.move(dx, dy, map);
     }
+    if(is_rotate_clicked){
+        tetromino.rotate(map);
+    }
     tetromino.draw(map);
     dx = 0, dy = 0;
+    is_rotate_clicked = false;
 }
 
 void Game::draw() {

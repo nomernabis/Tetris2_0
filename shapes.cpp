@@ -2,7 +2,6 @@
 // Created by pavel on 16.02.18.
 //
 
-#include <zconf.h>
 #include "Constants.h"
 #include "shapes.h"
 

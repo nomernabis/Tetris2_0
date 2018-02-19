@@ -17,7 +17,8 @@ class Tetromino {
     Shape shape;
     ShapeManager& shapeManager;
     void fix(int map[H][W]);
-    bool intersects(Position pos, int shape[N][N], int map[H][W]);
+    bool intersects(Shape shape, int map[H][W]);
+    bool isInBounds(int x, int y);
 public:
     explicit Tetromino(ShapeManager& sm);
     void draw(int map[H][W]);

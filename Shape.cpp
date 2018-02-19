@@ -65,7 +65,23 @@ Rect Shape::calc_rect() {
     Rect rect;
     rect.left = left;
     rect.top = top;
-    rect.w = right - left + (int)1;
-    rect.h = down - top + (int)1;
+    rect.w = right - left + 1;
+    rect.h = down - top + 1;
     return rect;
+}
+
+int Shape::right() {
+    return position.x + rect.w - 1;
+}
+
+int Shape::down() {
+    return position.y + rect.h - 1;
+}
+
+int Shape::left(){
+    return position.x + rect.left;
+}
+
+int Shape::top() {
+    return position.y + rect.top;
 }

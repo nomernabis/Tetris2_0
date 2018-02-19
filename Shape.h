@@ -30,5 +30,9 @@ public:
     explicit Shape(const int body[N][N]);
     //copy constructor
     Shape(const Shape& rhs);
+    int left();
+    int top();
+    int right();
+    int down();
 };
 #endif //TETRIS2_0_SHAPE_H

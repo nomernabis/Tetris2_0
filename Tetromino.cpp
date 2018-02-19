@@ -1,25 +1,28 @@
 //
 // Created by pavel on 11.02.18.
 //
-#include <iostream>
 #include "Tetromino.h"
+#include <iostream>
 
+Tetromino::Tetromino(ShapeManager &s) : shapeManager{s} {
+    std::srand(std::time(nullptr));
+}
 
-Tetromino::Tetromino(ShapeManager& s): shapeManager{s} {
-
+bool Tetromino::isInBounds(int x, int y) {
+    return x >= 0 && x < W && y >= 0 && y < H;
 }
 
 void Tetromino::move(int dx, int dy, int map[H][W]) {
 
+    Shape temp = shape;
 
-    Position temp = shape.position;
-    temp.x += dx;
-    temp.y += dy;
+    temp.position.x += dx;
+    temp.position.y += dy;
 
-    if (temp.x >= 0 && temp.x + shape.rect.w - 1 < W && temp.y >= 0 && temp.y + shape.rect.h - 1 < H) {
+    if (isInBounds(temp.right(), temp.down()) && isInBounds(temp.position.x, temp.position.y)) {
         //check for collisions
-        if (!intersects(temp, shape.body, map)) {
-            shape.position = temp;
+        if (!intersects(temp, map)) {
+            shape = temp;
         } else {
             if (dy == 1) {
                 fix(map);
@@ -33,10 +36,10 @@ void Tetromino::move(int dx, int dy, int map[H][W]) {
     }
 }
 
-bool Tetromino::intersects(Position pos, int shape[N][N], int map[H][W]) {
-    for (int i = pos.y; i < pos.y + this->shape.rect.h; ++i) {
-        for (int j = pos.x; j < pos.x + this->shape.rect.w; ++j) {
-            if (shape[i - pos.y + this->shape.rect.top][j - pos.x + this->shape.rect.left] == 1 && map[i][j] == 2) {
+bool Tetromino::intersects(Shape s, int map[H][W]) {
+    for (int i = s.position.y; i <= s.down(); ++i) {
+        for (int j = s.position.x; j <= s.right(); ++j) {
+            if (s.body[i - s.position.y + s.rect.top][j - s.position.x + s.rect.left] == 1 && map[i][j] == 2) {
                 return true;
             }
         }
@@ -45,10 +48,10 @@ bool Tetromino::intersects(Position pos, int shape[N][N], int map[H][W]) {
 }
 
 void Tetromino::draw(int map[H][W]) {
-    for (size_t i = 0; i < N; ++i) {
-        for (size_t j = 0; j < N; ++j) {
-            if (shape.body[i][j] == 1) {
-                map[i - shape.rect.top + shape.position.y][j - shape.rect.left + shape.position.x] = shape.body[i][j];
+    for (int i = shape.position.y; i <= shape.down(); ++i) {
+        for (int j = shape.position.x; j <= shape.right(); ++j) {
+            if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1) {
+                map[i][j] = shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left];
             }
         }
     }
@@ -56,8 +59,8 @@ void Tetromino::draw(int map[H][W]) {
 
 void Tetromino::clear(int map[H][W]) {
 
-    for (size_t i = shape.position.y; i < shape.position.y + N; ++i) {
-        for (size_t j = shape.position.x; j < shape.position.x + N; ++j) {
+    for (int i = shape.position.y; i <= shape.down(); ++i) {
+        for (int j = shape.position.x; j <= shape.right(); ++j) {
             if (map[i][j] == 1) {
                 map[i][j] = 0;
             }
@@ -66,8 +69,8 @@ void Tetromino::clear(int map[H][W]) {
 }
 
 void Tetromino::fix(int map[H][W]) {
-    for (int i = shape.position.y; i < shape.position.y + shape.rect.h; ++i) {
-        for (int j = shape.position.x; j < shape.position.x + shape.rect.w; ++j) {
+    for (int i = shape.position.y; i <= shape.down(); ++i) {
+        for (int j = shape.position.x; j <= shape.right(); ++j) {
             if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1) {
                 map[i][j] = 2;
             }
@@ -75,6 +78,9 @@ void Tetromino::fix(int map[H][W]) {
     }
     shape.position.x = 0;
     shape.position.y = 0;
+
+    //std::cout << "shit " << std::rand() % 5 << "\n";
+    //set_type((Type)(std::rand() % 5));
 }
 
 /*
@@ -86,29 +92,78 @@ void Tetromino::rotate(int map[H][W]) {
     Shape temp = shape;
     temp.rotate();
 
-    int lastX = temp.position.x + temp.rect.w - 1;
-    int lastY = temp.position.y + temp.rect.h - 1;
 
-    if(lastX < W && lastY < H){
-        if(!intersects(temp.position, temp.body, map)){
+    if (isInBounds(temp.right(), temp.down())) {
+        if (!intersects(temp, map)) {
             shape = temp;
+        } else {
+            for (int i = temp.position.y; i <= temp.down(); ++i) {
+                for (int j = temp.position.x; j <= temp.right(); ++j) {
+                    if (map[i][j] == 2 &&
+                        temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left] == 1) {
+                        //move left
+                        if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
+                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] ==
+                            1) {
+                            int dx = (j - 1) - temp.right();
+                            shape = temp;
+                            move(dx, 0, map);
+                            return;
+                        }
+
+                        if (isInBounds(j, i - 1) && map[i - 1][j] == 0 &&
+                            temp.body[i - temp.position.y + temp.rect.top - 1][j - temp.position.x + temp.rect.left] ==
+                            1) {
+                            int dy = (i - 1) - temp.down();
+                            shape = temp;
+                            move(0, dy, map);
+                            return;
+                        }
+
+                    }
+                }
+            }
         }
     } else {
-        Position temp_pos;
-        int dx = 0, dy = 0;
-        if(lastX >= W){
-            dx = (W - 1) - lastX;
-        }
-        if(lastY >= H){
-            dy = (H - 1) - lastY;
-        }
-        temp_pos.x = temp.position.x + dx;
-        temp_pos.y = temp.position.y + dy;
 
-        if(!intersects(temp_pos, temp.body, map)){
+        if (intersects(temp, map)) {
+            for (int i = temp.position.y; i <= temp.down(); ++i) {
+                for (int j = temp.position.x; j <= temp.right(); ++j) {
+                    if (map[i][j] == 2 &&
+                        temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left] == 1) {
+                        //move left
+                        if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
+                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] ==
+                            1) {
+                            int dx = (j - 1) - temp.right();
+                            shape = temp;
+                            move(dx, 0, map);
+                            return;
+                        }
+                        if (isInBounds(j, i - 1) && map[i - 1][j] == 0 &&
+                            temp.body[i - temp.position.y + temp.rect.top - 1][j - temp.position.x + temp.rect.left] ==
+                            1) {
+                            int dy = (i - 1) - temp.down();
+                            shape = temp;
+                            move(0, dy, map);
+                            return;
+                        }
+                    }
+                }
+            }
+        } else {
+            int dx = 0, dy = 0;
+            if (temp.right() > W - 1) {
+                dx = (W - 1) - temp.right();
+            }
+            if (temp.down() > H - 1) {
+                dy = (H - 1) - temp.down();
+            }
             shape = temp;
             move(dx, dy, map);
+            return;
         }
+
     }
 
 }

@@ -15,10 +15,12 @@
 class Game {
     sf::RenderWindow m_renderWindow;
     sf::RectangleShape m_cell;
-    int dx = 0, dy = 0;
     int map[H][W] = {};
     ShapeManager m_shapeManager;
     Tetromino tetromino;
+    //controls
+    int dx = 0, dy = 0;
+    bool is_rotate_clicked = false;
 public:
     Game();
     void run();
