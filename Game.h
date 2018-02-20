@@ -21,6 +21,10 @@ class Game {
     //controls
     int dx = 0, dy = 0;
     bool is_rotate_clicked = false;
+    bool need_to_remove = false;
+    bool removed_rows[H] = { false };
+    bool calc_rows();
+    void remove_rows();
 public:
     Game();
     void run();

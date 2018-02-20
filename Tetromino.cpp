@@ -95,19 +95,21 @@ void Tetromino::rotate(int map[H][W]) {
 
     if (isInBounds(temp.right(), temp.down())) {
         if (!intersects(temp, map)) {
+            std::cout << "ok\n";
             shape = temp;
         } else {
+            std::cout << "not ok\n";
             for (int i = temp.position.y; i <= temp.down(); ++i) {
                 for (int j = temp.position.x; j <= temp.right(); ++j) {
                     if (map[i][j] == 2 &&
                         temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left] == 1) {
                         //move left
                         if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
-                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] ==
-                            1) {
+                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] == 1) {
                             int dx = (j - 1) - temp.right();
                             shape = temp;
                             move(dx, 0, map);
+                            std::cout << "not ok1\n";
                             return;
                         }
 
@@ -117,6 +119,7 @@ void Tetromino::rotate(int map[H][W]) {
                             int dy = (i - 1) - temp.down();
                             shape = temp;
                             move(0, dy, map);
+                            std::cout << "not ok2\n";
                             return;
                         }
 

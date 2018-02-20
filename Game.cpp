@@ -72,6 +72,13 @@ void Game::update() {
         tetromino.rotate(map);
     }
     tetromino.draw(map);
+
+    need_to_remove = calc_rows();
+    if(need_to_remove){
+        remove_rows();
+    }
+    need_to_remove = false;
+
     dx = 0, dy = 0;
     is_rotate_clicked = false;
 }
@@ -82,10 +89,60 @@ void Game::draw() {
     for(int i=0; i < H; ++i){
         for(int j=0; j < W; ++j){
             if(map[i][j] != 0){
-                m_cell.setPosition(25 * j, 25 * i);
+                m_cell.setPosition(CELL_SIZE * j, CELL_SIZE * i);
                 m_renderWindow.draw(m_cell);
             }
         }
     }
     m_renderWindow.display();
+}
+
+bool Game::calc_rows() {
+
+    for(int i=0; i < H; ++i){
+        removed_rows[i] = false;
+    }
+
+    for(int i=0; i < H; ++i){
+        bool is_full = true;
+        for(int j=0; j < W; ++j){
+            if(map[i][j] != 2){
+                is_full = false;
+                break;
+            }
+        }
+        removed_rows[i] = is_full;
+    }
+
+
+    for(int i=0; i < H; ++i){
+        if(removed_rows[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void Game::remove_rows() {
+    int temp[H][W];
+    tetromino.clear(map);
+
+    for(int i=0; i < H; ++i){
+        for(int j=0; j < W; ++j){
+            temp[i][j] = map[i][j];
+        }
+    }
+
+    int offset = 0;
+    for(int i=H-1; i >= 0; --i){
+        if(removed_rows[i]){
+            offset++;
+            continue;
+        }
+
+        for(int j=0; j < W; ++j){
+            map[i + offset][j] = temp[i][j];
+        }
+    }
+
 }

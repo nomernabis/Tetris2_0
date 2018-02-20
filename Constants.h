@@ -7,4 +7,5 @@
 #include <zconf.h>
 const int N = 4;
 const int W = 10, H = 20;
+const int CELL_SIZE = 25;
 #endif //TETRIS2_0_CONSTANTS_H
