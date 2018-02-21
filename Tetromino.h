@@ -19,6 +19,8 @@ class Tetromino {
     void fix(int map[H][W]);
     bool intersects(Shape shape, int map[H][W]);
     bool isInBounds(int x, int y);
+    void move(int dx, int dy, Shape& shape, int map[H][W]);
+    void check_rotation_collisions(Shape& temp, int map[H][W]);
 public:
     explicit Tetromino(ShapeManager& sm);
     void draw(int map[H][W]);

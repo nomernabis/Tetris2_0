@@ -78,10 +78,10 @@ int Shape::down() {
     return position.y + rect.h - 1;
 }
 
-int Shape::left(){
-    return position.x + rect.left;
+int Shape::left(int j){
+    return j - position.x + rect.left ;
 }
 
-int Shape::top() {
-    return position.y + rect.top;
+int Shape::top(int i) {
+    return i - position.y + rect.top;
 }

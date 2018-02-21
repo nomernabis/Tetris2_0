@@ -30,8 +30,8 @@ public:
     explicit Shape(const int body[N][N]);
     //copy constructor
     Shape(const Shape& rhs);
-    int left();
-    int top();
+    int left(int j);
+    int top(int i);
     int right();
     int down();
 };

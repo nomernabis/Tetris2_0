@@ -87,73 +87,65 @@ void Tetromino::fix(int map[H][W]) {
  * 1)Try rotate
  * 2)Detect part intersected
  * */
-void Tetromino::rotate(int map[H][W]) {
 
-    Shape temp = shape;
-    temp.rotate();
+void Tetromino::move(int dx, int dy, Shape& temp, int map[H][W]){
 
+    temp.position.x += dx;
+    temp.position.y += dy;
 
-    if (isInBounds(temp.right(), temp.down())) {
+    if (isInBounds(temp.right(), temp.down()) && isInBounds(temp.position.x, temp.position.y)) {
+        //check for collisions
         if (!intersects(temp, map)) {
-            std::cout << "ok\n";
             shape = temp;
         } else {
-            std::cout << "not ok\n";
-            for (int i = temp.position.y; i <= temp.down(); ++i) {
-                for (int j = temp.position.x; j <= temp.right(); ++j) {
-                    if (map[i][j] == 2 &&
-                        temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left] == 1) {
-                        //move left
-                        if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
-                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] == 1) {
-                            int dx = (j - 1) - temp.right();
-                            shape = temp;
-                            move(dx, 0, map);
-                            std::cout << "not ok1\n";
-                            return;
-                        }
-
-                        if (isInBounds(j, i - 1) && map[i - 1][j] == 0 &&
-                            temp.body[i - temp.position.y + temp.rect.top - 1][j - temp.position.x + temp.rect.left] ==
-                            1) {
-                            int dy = (i - 1) - temp.down();
-                            shape = temp;
-                            move(0, dy, map);
-                            std::cout << "not ok2\n";
-                            return;
-                        }
-
-                    }
-                }
+            if (dy == 1) {
+                fix(map);
             }
         }
     } else {
+        //move down
+        if (dy == 1) {
+            fix(map);
+        }
+    }
+}
 
-        if (intersects(temp, map)) {
-            for (int i = temp.position.y; i <= temp.down(); ++i) {
-                for (int j = temp.position.x; j <= temp.right(); ++j) {
-                    if (map[i][j] == 2 &&
-                        temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left] == 1) {
-                        //move left
-                        if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
-                            temp.body[i - temp.position.y + temp.rect.top][j - temp.position.x + temp.rect.left - 1] ==
-                            1) {
-                            int dx = (j - 1) - temp.right();
-                            shape = temp;
-                            move(dx, 0, map);
-                            return;
-                        }
-                        if (isInBounds(j, i - 1) && map[i - 1][j] == 0 &&
-                            temp.body[i - temp.position.y + temp.rect.top - 1][j - temp.position.x + temp.rect.left] ==
-                            1) {
-                            int dy = (i - 1) - temp.down();
-                            shape = temp;
-                            move(0, dy, map);
-                            return;
-                        }
-                    }
+void Tetromino::check_rotation_collisions(Shape &temp, int map[H][W]) {
+    for (int i = temp.position.y; i <= temp.down(); ++i) {
+        for (int j = temp.position.x; j <= temp.right(); ++j) {
+            if (map[i][j] == 2 && temp.body[temp.top(i)][temp.left(j)] == 1) {
+                //move left
+                if (isInBounds(j - 1, i) && map[i][j - 1] == 0 &&
+                    temp.body[temp.top(i)][temp.left(j) - 1] == 1) {
+                    int dx = (j - 1) - temp.right();
+                    move(dx, 0, temp, map);
+                    return;
                 }
+
+                if (isInBounds(j, i - 1) && map[i - 1][j] == 0 && temp.body[temp.top(i) - 1][temp.left(j)] == 1) {
+                    int dy = (i - 1) - temp.down();
+                    move(0, dy, temp, map);
+                    return;
+                }
+
             }
+        }
+    }
+}
+
+void Tetromino::rotate(int map[H][W]) {
+    Shape temp = shape;
+    temp.rotate();
+
+    if (isInBounds(temp.right(), temp.down())) {
+        if (!intersects(temp, map)) {
+            shape = temp;
+        } else {
+            check_rotation_collisions(temp, map);
+        }
+    } else {
+        if (intersects(temp, map)) {
+            check_rotation_collisions(temp, map);
         } else {
             int dx = 0, dy = 0;
             if (temp.right() > W - 1) {
@@ -162,14 +154,14 @@ void Tetromino::rotate(int map[H][W]) {
             if (temp.down() > H - 1) {
                 dy = (H - 1) - temp.down();
             }
-            shape = temp;
-            move(dx, dy, map);
-            return;
+            move(dx, dy, temp, map);
         }
 
     }
 
 }
+
+
 
 void Tetromino::set_type(Type t) {
     type = t;
