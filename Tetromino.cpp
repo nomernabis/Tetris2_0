@@ -4,7 +4,7 @@
 #include "Tetromino.h"
 #include <iostream>
 
-Tetromino::Tetromino(ShapeManager &s) : shapeManager{s} {
+Tetromino::Tetromino(ShapeManager* s) : shapeManager{s} {
     std::srand(std::time(nullptr));
 }
 
@@ -79,7 +79,8 @@ void Tetromino::fix(int map[H][W]) {
     shape.position.x = 0;
     shape.position.y = 0;
 
-    //set_type((Type)(std::rand() % 5));
+    set_type(next_type);
+    next_type = (Type) (std::rand() % 5);
 }
 
 /*
@@ -160,9 +161,17 @@ void Tetromino::rotate(int map[H][W]) {
 
 }
 
-
-
 void Tetromino::set_type(Type t) {
     type = t;
-    shape = shapeManager.get(type);
+    shape = shapeManager->get(t);
+}
+
+Type Tetromino::get_next_type() {
+    return next_type;
+}
+
+void Tetromino::set_shape_manager(ShapeManager *sm) {
+    shapeManager = sm;
+    set_type((Type) (std::rand() % 5));
+    next_type = (Type) (std::rand() % 5);
 }

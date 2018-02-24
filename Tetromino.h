@@ -13,21 +13,25 @@
 #include "ShapeManager.h"
 
 class Tetromino {
-    Type type = Type::I;
+    Type type;
+    Type next_type;
     Shape shape;
-    ShapeManager& shapeManager;
+    ShapeManager* shapeManager = nullptr;
     void fix(int map[H][W]);
     bool intersects(Shape shape, int map[H][W]);
     bool isInBounds(int x, int y);
     void move(int dx, int dy, Shape& shape, int map[H][W]);
     void check_rotation_collisions(Shape& temp, int map[H][W]);
 public:
-    explicit Tetromino(ShapeManager& sm);
+    Tetromino() = default;
+    explicit Tetromino(ShapeManager* sm);
     void draw(int map[H][W]);
     void move(int dx, int dy, int map[H][W]);
     void clear(int map[H][W]);
     void rotate(int map[H][W]);
     void set_type(Type t);
+    void set_shape_manager(ShapeManager* sm);
+    Type get_next_type();
 };
 
 

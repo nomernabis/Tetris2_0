@@ -6,8 +6,7 @@
 #include "Game.h"
 
 Game::Game()
-        :m_renderWindow(sf::VideoMode(W * CELL_SIZE + SCREEN_PADDING * 2, H * CELL_SIZE), "Tetris"),
-         tetromino(m_shapeManager){
+        :m_renderWindow(sf::VideoMode(W * CELL_SIZE + SCREEN_PADDING * 2, H * CELL_SIZE), "Tetris"){
 
     Shape m_i_shape(i_body),
             m_l_shape(l_body),
@@ -26,7 +25,6 @@ Game::Game()
     m_cell.setSize({25, 25});
     m_cell.setFillColor(sf::Color::Black);
 
-    tetromino.set_type(Type::L);
 
     //load font
     if(!atarian_font.loadFromFile("assets/fonts/atarian.ttf")){
@@ -39,6 +37,8 @@ Game::Game()
     //
     vertical_border.setFillColor(sf::Color::Black);
     vertical_border.setSize({BORDER_WIDTH, H * CELL_SIZE});
+
+    tetromino.set_shape_manager(&m_shapeManager);
 }
 
 void Game::run() {
@@ -88,6 +88,8 @@ void Game::update() {
 
     need_to_remove = calc_rows();
     if(need_to_remove){
+        //DRAWING IN UPDATE
+        play_animation();
         remove_rows();
     }
     need_to_remove = false;
@@ -97,12 +99,11 @@ void Game::update() {
 }
 
 void Game::draw_next_shape() {
-    int mini_size = CELL_SIZE * 0.7;
-//    m_cell.setSize({mini_size, mini_size});
+    int mini_size = CELL_SIZE;
+    m_cell.setSize({mini_size, mini_size});
 
-    Shape next_shape = m_shapeManager.get(next_type);
+    Shape next_shape = m_shapeManager.get(tetromino.get_next_type());
 
-    std::cout << next_shape.rect.left << " " << next_shape.right() << "\n";
     for(int i=next_shape.rect.top; i < next_shape.rect.top + next_shape.rect.h; ++i){
         for(int j = next_shape.rect.left; j <= next_shape.rect.left + next_shape.rect.w; ++j){
             if(next_shape.body[i][j] == 1){
@@ -191,4 +192,20 @@ void Game::remove_rows() {
         }
     }
 
+}
+
+void Game::play_animation() {
+    m_cell.setFillColor(sf::Color::Red);
+    m_cell.setSize({CELL_SIZE, CELL_SIZE});
+    for(int i=0; i < H; ++i){
+        if(removed_rows[i]){
+            for(int j=0; j < W; ++j){
+                m_cell.setPosition(j * CELL_SIZE + SCREEN_PADDING, i * CELL_SIZE);
+                m_renderWindow.draw(m_cell);
+            }
+        }
+    }
+    m_renderWindow.display();
+    sf::sleep(sf::milliseconds(500));
+    m_cell.setFillColor(sf::Color::Black);
 }

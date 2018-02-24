@@ -26,6 +26,7 @@ class Game {
     bool calc_rows();
     void remove_rows();
     void draw_next_shape();
+    void play_animation();
     //
     int scores = 0;
     //
@@ -38,7 +39,6 @@ public:
     void readInput();
     void update();
     void draw();
-    Type next_type = Type::L;
 };
 
 
