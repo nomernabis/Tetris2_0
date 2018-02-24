@@ -79,7 +79,6 @@ void Tetromino::fix(int map[H][W]) {
     shape.position.x = 0;
     shape.position.y = 0;
 
-    //std::cout << "shit " << std::rand() % 5 << "\n";
     //set_type((Type)(std::rand() % 5));
 }
 

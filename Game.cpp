@@ -6,7 +6,8 @@
 #include "Game.h"
 
 Game::Game()
-        :m_renderWindow(sf::VideoMode(250, 500), "Tetris"), tetromino(m_shapeManager){
+        :m_renderWindow(sf::VideoMode(W * CELL_SIZE + SCREEN_PADDING * 2, H * CELL_SIZE), "Tetris"),
+         tetromino(m_shapeManager){
 
     Shape m_i_shape(i_body),
             m_l_shape(l_body),
@@ -25,7 +26,19 @@ Game::Game()
     m_cell.setSize({25, 25});
     m_cell.setFillColor(sf::Color::Black);
 
-    tetromino.set_type(Type::I);
+    tetromino.set_type(Type::L);
+
+    //load font
+    if(!atarian_font.loadFromFile("assets/fonts/atarian.ttf")){
+
+    }
+    text.setFont(atarian_font);
+    text.setCharacterSize(24);
+    text.setFillColor(sf::Color::Black);
+
+    //
+    vertical_border.setFillColor(sf::Color::Black);
+    vertical_border.setSize({BORDER_WIDTH, H * CELL_SIZE});
 }
 
 void Game::run() {
@@ -83,13 +96,43 @@ void Game::update() {
     is_rotate_clicked = false;
 }
 
+void Game::draw_next_shape() {
+    int mini_size = CELL_SIZE * 0.7;
+//    m_cell.setSize({mini_size, mini_size});
+
+    Shape next_shape = m_shapeManager.get(next_type);
+
+    std::cout << next_shape.rect.left << " " << next_shape.right() << "\n";
+    for(int i=next_shape.rect.top; i < next_shape.rect.top + next_shape.rect.h; ++i){
+        for(int j = next_shape.rect.left; j <= next_shape.rect.left + next_shape.rect.w; ++j){
+            if(next_shape.body[i][j] == 1){
+                m_cell.setPosition(j*mini_size, i*mini_size);
+                m_renderWindow.draw(m_cell);
+            }
+        }
+    }
+    m_cell.setSize({CELL_SIZE, CELL_SIZE});
+}
+
 void Game::draw() {
     m_renderWindow.clear(sf::Color::White);
+
+    //draw border
+    vertical_border.setPosition(SCREEN_PADDING, 0);
+    m_renderWindow.draw(vertical_border);
+    vertical_border.setPosition(W * CELL_SIZE + SCREEN_PADDING, 0);
+    m_renderWindow.draw(vertical_border);
+    //draw lines
+    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + 25, 50);
+    text.setString("Lines: " + std::to_string(scores));
+    m_renderWindow.draw(text);
+
+    draw_next_shape();
 
     for(int i=0; i < H; ++i){
         for(int j=0; j < W; ++j){
             if(map[i][j] != 0){
-                m_cell.setPosition(CELL_SIZE * j, CELL_SIZE * i);
+                m_cell.setPosition(SCREEN_PADDING + CELL_SIZE * j, CELL_SIZE * i);
                 m_renderWindow.draw(m_cell);
             }
         }
@@ -110,6 +153,9 @@ bool Game::calc_rows() {
                 is_full = false;
                 break;
             }
+        }
+        if(is_full){
+            ++scores;
         }
         removed_rows[i] = is_full;
     }

@@ -1,6 +1,7 @@
 //
 // Created by pavel on 15.02.18.
 //
+#include <algorithm>
 #include "Shape.h"
 
 
@@ -25,9 +26,13 @@ Shape::Shape(const Shape& rhs){
 
 void Shape::rotate() {
     int temp[N][N] = {};
-    for(size_t i=0; i < N; ++i){
-        for(size_t j=0; j < N; ++j){
-            temp[i][j] = body[j][i];
+    Rect prev = rect;
+
+
+    int n = std::max(rect.h, rect.w);
+    for(size_t i=0; i < n; ++i){
+        for(size_t j=0; j < n; ++j){
+            temp[j][n - i - 1] = body[i][j];
         }
     }
 
@@ -38,6 +43,10 @@ void Shape::rotate() {
     }
 
     rect = calc_rect();
+
+
+    position.x+= rect.left - prev.left;
+    position.y+=rect.top - prev.top;
 }
 
 Rect Shape::calc_rect() {

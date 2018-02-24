@@ -25,12 +25,20 @@ class Game {
     bool removed_rows[H] = { false };
     bool calc_rows();
     void remove_rows();
+    void draw_next_shape();
+    //
+    int scores = 0;
+    //
+    sf::Font atarian_font;
+    sf::Text text;
+    sf::RectangleShape vertical_border;
 public:
     Game();
     void run();
     void readInput();
     void update();
     void draw();
+    Type next_type = Type::L;
 };
 
 
