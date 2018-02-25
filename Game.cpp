@@ -104,10 +104,16 @@ void Game::draw_next_shape() {
 
     Shape next_shape = m_shapeManager.get(tetromino.get_next_type());
 
+    int width = next_shape.rect.w * CELL_SIZE;
+
+    text.setString("Next");
+    text.setPosition(SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 50);
+    m_renderWindow.draw(text);
+
     for(int i=next_shape.rect.top; i < next_shape.rect.top + next_shape.rect.h; ++i){
         for(int j = next_shape.rect.left; j <= next_shape.rect.left + next_shape.rect.w; ++j){
             if(next_shape.body[i][j] == 1){
-                m_cell.setPosition(j*mini_size, i*mini_size);
+                m_cell.setPosition( (SCREEN_PADDING - width)/2 + j*mini_size, 100 + i*mini_size);
                 m_renderWindow.draw(m_cell);
             }
         }
@@ -125,10 +131,10 @@ void Game::draw() {
     m_renderWindow.draw(vertical_border);
     //draw lines
     text.setString("Lines");
-    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 70);
+    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 50);
     m_renderWindow.draw(text);
     text.setString(std::to_string(scores));
-    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 100);
+    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 90);
     m_renderWindow.draw(text);
 
     draw_next_shape();
