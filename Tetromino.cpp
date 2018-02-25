@@ -137,7 +137,7 @@ void Tetromino::rotate(int map[H][W]) {
     Shape temp = shape;
     temp.rotate();
 
-    if (isInBounds(temp.right(), temp.down())) {
+    if (isInBounds(temp.right(), temp.down()) && isInBounds(temp.position.x, temp.position.y)) {
         if (!intersects(temp, map)) {
             shape = temp;
         } else {
@@ -148,6 +148,15 @@ void Tetromino::rotate(int map[H][W]) {
             check_rotation_collisions(temp, map);
         } else {
             int dx = 0, dy = 0;
+
+            if(temp.position.x < 0){
+                temp.position.x = 0;
+            }
+
+            if(temp.position.y < 0){
+                temp.position.y = 0;
+            }
+
             if (temp.right() > W - 1) {
                 dx = (W - 1) - temp.right();
             }

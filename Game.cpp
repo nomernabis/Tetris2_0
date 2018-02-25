@@ -124,8 +124,11 @@ void Game::draw() {
     vertical_border.setPosition(W * CELL_SIZE + SCREEN_PADDING, 0);
     m_renderWindow.draw(vertical_border);
     //draw lines
-    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + 25, 50);
-    text.setString("Lines: " + std::to_string(scores));
+    text.setString("Lines");
+    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 70);
+    m_renderWindow.draw(text);
+    text.setString(std::to_string(scores));
+    text.setPosition(W * CELL_SIZE + SCREEN_PADDING + SCREEN_PADDING / 2 - text.getLocalBounds().width / 2, 100);
     m_renderWindow.draw(text);
 
     draw_next_shape();
