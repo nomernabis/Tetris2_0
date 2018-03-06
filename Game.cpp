@@ -37,14 +37,53 @@ Game::Game()
     //
     vertical_border.setFillColor(sf::Color::Black);
     vertical_border.setSize({BORDER_WIDTH, H * CELL_SIZE});
+    //
+    sf::Color blackFilter = sf::Color::Black;
+    blackFilter.a = 128;
+
+    m_filterRect.setFillColor(blackFilter);
+    m_filterRect.setSize({m_renderWindow.getSize().x, m_renderWindow.getSize().y});
+
+    const int p_box_width = 200;
+    const int p_box_height = 250;
+
+    m_pauseRect.setFillColor(sf::Color::White);
+    m_pauseRect.setSize({p_box_width, p_box_height});
+    m_pauseRect.setPosition((W * CELL_SIZE + 2 * SCREEN_PADDING)/ 2 - p_box_width / 2,
+                            H * CELL_SIZE / 2 - p_box_height / 2);
+
+
 
     tetromino.set_shape_manager(&m_shapeManager);
 }
 
+void Game::processPause() {
+    sf::Event event;
+    while (m_renderWindow.pollEvent(event)){
+        if(event.type == sf::Event::Closed){
+            m_renderWindow.close();
+        }
+        if(event.type == sf::Event::KeyPressed){
+            switch (event.key.code){
+                case sf::Keyboard::P:
+                    is_running = !is_running;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+}
+
 void Game::run() {
     while(m_renderWindow.isOpen()){
-        readInput();
-        update();
+        if(is_running){
+            readInput();
+            update();
+        } else {
+            processPause();
+        }
         draw();
     }
 }
@@ -68,6 +107,9 @@ void Game::readInput() {
                     break;
                 case sf::Keyboard::Up:
                     is_rotate_clicked = true;
+                    break;
+                case sf::Keyboard::P:
+                    is_running = !is_running;
                     break;
                 default:
                     break;
@@ -147,7 +189,31 @@ void Game::draw() {
             }
         }
     }
+
+    if(!is_running){
+        m_renderWindow.draw(m_filterRect);
+        m_renderWindow.draw(m_pauseRect);
+
+        drawMenu("Menu", m_pauseRect, m_pauseRect, 20);
+        drawMenu("Resume", text, m_pauseRect, 40);
+        drawMenu("Restart", text, m_pauseRect, 40);
+        drawMenu("Exit", text, m_pauseRect, 40);
+    }
     m_renderWindow.display();
+}
+
+void Game::drawMenu(std::string title, sf::Transformable& relativeTo, sf::RectangleShape& parent, float margin){
+    text.setString(title);
+    text.setPosition(calcCenteredX(text, parent), marginTop(relativeTo, margin));
+    m_renderWindow.draw(text);
+}
+
+float Game::marginTop(sf::Transformable& relativeTo, float margin) const {
+    return relativeTo.getPosition().y + margin;
+}
+
+float Game::calcCenteredX(sf::Text& text, sf::RectangleShape& rect) const {
+    return rect.getPosition().x + rect.getSize().x / 2 - text.getLocalBounds().width / 2;
 }
 
 bool Game::calc_rows() {
