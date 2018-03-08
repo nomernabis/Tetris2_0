@@ -68,6 +68,13 @@ void Tetromino::clear(int map[H][W]) {
     }
 }
 
+void Tetromino::init() {
+    shape.position.x = 0;
+    shape.position.y = 0;
+    set_type(next_type);
+    next_type = (Type) (std::rand() % 5);
+}
+
 void Tetromino::fix(int map[H][W]) {
     for (int i = shape.position.y; i <= shape.down(); ++i) {
         for (int j = shape.position.x; j <= shape.right(); ++j) {
@@ -76,11 +83,7 @@ void Tetromino::fix(int map[H][W]) {
             }
         }
     }
-    shape.position.x = 0;
-    shape.position.y = 0;
-
-    set_type(next_type);
-    next_type = (Type) (std::rand() % 5);
+    init();
 }
 
 /*
@@ -181,6 +184,5 @@ Type Tetromino::get_next_type() {
 
 void Tetromino::set_shape_manager(ShapeManager *sm) {
     shapeManager = sm;
-    set_type((Type) (std::rand() % 5));
-    next_type = (Type) (std::rand() % 5);
+    init();
 }

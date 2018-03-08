@@ -57,6 +57,47 @@ Game::Game()
     tetromino.set_shape_manager(&m_shapeManager);
 }
 
+void Game::clearMap() {
+    for(int i=0; i < H; ++i){
+        for(int j=0; j < W; ++j){
+            map[i][j] = 0;
+        }
+    }
+}
+
+void Game::resume() {
+    is_running = !is_running;
+    current_index = 0;
+}
+
+void Game::restart() {
+    is_running = !is_running;
+    scores = 0;
+    current_index = 0;
+    tetromino.init();
+    clearMap();
+}
+
+void Game::exit() {
+    m_renderWindow.close();
+}
+
+void Game::processMenu() {
+    switch (current_index){
+        case RESUME:
+            resume();
+            break;
+        case RESTART:
+            restart();
+            break;
+        case EXIT:
+            exit();
+            break;
+        default:
+            break;
+    };
+}
+
 void Game::processPause() {
     sf::Event event;
     while (m_renderWindow.pollEvent(event)){
@@ -67,14 +108,29 @@ void Game::processPause() {
             switch (event.key.code){
                 case sf::Keyboard::P:
                     is_running = !is_running;
+                    current_index = 0;
+                    break;
+                case sf::Keyboard::Down:
+                    current_index++;
+                    break;
+                case sf::Keyboard::Up:
+                    current_index--;
+                    break;
+                case sf::Keyboard::Return:
+                    processMenu();
                     break;
                 default:
                     break;
             }
+            if(current_index < 0){
+                current_index = 2;
+            }
+            current_index = current_index % 3;
         }
     }
 
 }
+
 
 void Game::run() {
     while(m_renderWindow.isOpen()){
@@ -193,19 +249,31 @@ void Game::draw() {
     if(!is_running){
         m_renderWindow.draw(m_filterRect);
         m_renderWindow.draw(m_pauseRect);
-
+        //
         drawMenu("Menu", m_pauseRect, m_pauseRect, 20);
-        drawMenu("Resume", text, m_pauseRect, 40);
-        drawMenu("Restart", text, m_pauseRect, 40);
-        drawMenu("Exit", text, m_pauseRect, 40);
+        //
+        coords[0] = drawMenu("Resume", text, m_pauseRect, 40);
+        coords[1] = drawMenu("Restart", text, m_pauseRect, 40);
+        coords[2] = drawMenu("Exit", text, m_pauseRect, 40);
+        //draw index
+        drawIndex();
     }
     m_renderWindow.display();
 }
 
-void Game::drawMenu(std::string title, sf::Transformable& relativeTo, sf::RectangleShape& parent, float margin){
+void Game::drawIndex() {
+    m_cell.setSize({15, 15});
+    m_cell.setPosition(coords[current_index].x - 30, coords[current_index].y);
+    m_renderWindow.draw(m_cell);
+}
+
+sf::Vector2f Game::drawMenu(std::string title, sf::Transformable& relativeTo, sf::RectangleShape& parent, float margin){
     text.setString(title);
-    text.setPosition(calcCenteredX(text, parent), marginTop(relativeTo, margin));
+    sf::Vector2f position = {calcCenteredX(text, parent), marginTop(relativeTo, margin)};
+    text.setPosition(position);
+    position.y += text.getLocalBounds().top;
     m_renderWindow.draw(text);
+    return position;
 }
 
 float Game::marginTop(sf::Transformable& relativeTo, float margin) const {

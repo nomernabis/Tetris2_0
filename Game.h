@@ -29,9 +29,20 @@ class Game {
     void draw_next_shape();
     void play_animation();
     void processPause();
+    void drawIndex();
+    void processMenu();
+    void clearMap();
     float calcCenteredX(sf::Text& text, sf::RectangleShape& rect) const;
     float marginTop(sf::Transformable& relativeTo, float margin) const;
-    void drawMenu(std::string title, sf::Transformable& relativeTo, sf::RectangleShape& parent, float marginTop);
+    sf::Vector2f drawMenu(std::string title, sf::Transformable& relativeTo, sf::RectangleShape& parent, float marginTop);
+    //
+    static const int RESUME = 0;
+    static const int RESTART = 1;
+    static const int EXIT = 2;
+    //
+    void resume();
+    void restart();
+    void exit();
     //
     int scores = 0;
     //
@@ -40,6 +51,9 @@ class Game {
     sf::RectangleShape vertical_border;
     //
     bool is_running = true;
+    //menu vars
+    sf::Vector2f coords[3];
+    int current_index = 0;
 public:
     Game();
     void run();
