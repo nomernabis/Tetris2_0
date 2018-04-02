@@ -33,6 +33,7 @@ public:
     void set_shape_manager(ShapeManager* sm);
     Type get_next_type();
     void init();
+    bool checkFail(int map[H][W]);
 };
 
 

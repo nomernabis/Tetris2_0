@@ -11,9 +11,7 @@ Tetromino::Tetromino(ShapeManager* s) : shapeManager{s} {
 bool Tetromino::isInBounds(int x, int y) {
     return x >= 0 && x < W && y >= 0 && y < H;
 }
-
 void Tetromino::move(int dx, int dy, int map[H][W]) {
-
     Shape temp = shape;
 
     temp.position.x += dx;
@@ -37,6 +35,13 @@ void Tetromino::move(int dx, int dy, int map[H][W]) {
 }
 
 bool Tetromino::intersects(Shape s, int map[H][W]) {
+    for(int i=0; i < H; ++i){
+        for(int j=0; j < W; ++j){
+            std::cout << map[i][j] << " ";
+        }
+        std::cout << "\n";
+    }
+
     for (int i = s.position.y; i <= s.down(); ++i) {
         for (int j = s.position.x; j <= s.right(); ++j) {
             if (s.body[i - s.position.y + s.rect.top][j - s.position.x + s.rect.left] == 1 && map[i][j] == 2) {
@@ -50,7 +55,7 @@ bool Tetromino::intersects(Shape s, int map[H][W]) {
 void Tetromino::draw(int map[H][W]) {
     for (int i = shape.position.y; i <= shape.down(); ++i) {
         for (int j = shape.position.x; j <= shape.right(); ++j) {
-            if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1) {
+            if (shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left] == 1 && map[i][j] == 0) {
                 map[i][j] = shape.body[i - shape.position.y + shape.rect.top][j - shape.position.x + shape.rect.left];
             }
         }
@@ -185,4 +190,8 @@ Type Tetromino::get_next_type() {
 void Tetromino::set_shape_manager(ShapeManager *sm) {
     shapeManager = sm;
     init();
+}
+
+bool Tetromino::checkFail(int map[H][W]) {
+    return intersects(shape, map);
 }

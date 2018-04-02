@@ -12,7 +12,9 @@
 #include "ShapeManager.h"
 #include "Tetromino.h"
 
+enum State{running, pause_state, fail};
 class Game {
+    State currentState;
     sf::RenderWindow m_renderWindow;
     sf::RectangleShape m_cell, m_pauseRect, m_filterRect;
     int map[H][W] = {};
@@ -44,16 +46,20 @@ class Game {
     void restart();
     void exit();
     //
+    void processFail();
+    //
     int scores = 0;
     //
     sf::Font atarian_font;
     sf::Text text;
     sf::RectangleShape vertical_border;
     //
-    bool is_running = true;
     //menu vars
     sf::Vector2f coords[3];
     int current_index = 0;
+    //
+    float elapsed = 0;
+    sf::Clock clock;
 public:
     Game();
     void run();

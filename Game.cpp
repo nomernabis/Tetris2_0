@@ -66,12 +66,12 @@ void Game::clearMap() {
 }
 
 void Game::resume() {
-    is_running = !is_running;
+    currentState = running;
     current_index = 0;
 }
 
 void Game::restart() {
-    is_running = !is_running;
+    currentState = running;
     scores = 0;
     current_index = 0;
     tetromino.init();
@@ -100,6 +100,7 @@ void Game::processMenu() {
 
 void Game::processPause() {
     sf::Event event;
+    clock.restart();
     while (m_renderWindow.pollEvent(event)){
         if(event.type == sf::Event::Closed){
             m_renderWindow.close();
@@ -107,7 +108,7 @@ void Game::processPause() {
         if(event.type == sf::Event::KeyPressed){
             switch (event.key.code){
                 case sf::Keyboard::P:
-                    is_running = !is_running;
+                    currentState = running;
                     current_index = 0;
                     break;
                 case sf::Keyboard::Down:
@@ -131,14 +132,36 @@ void Game::processPause() {
 
 }
 
+void Game::processFail() {
+    sf::Event event;
+    while (m_renderWindow.pollEvent(event)){
+        if(event.type == sf::Event::Closed){
+            m_renderWindow.close();
+        }
+        if(event.type == sf::Event::KeyPressed){
+            if(event.key.code == sf::Keyboard::Space){
+                restart();
+            }
+        }
+    }
+}
 
 void Game::run() {
+    currentState = running;
+    tetromino.init();
     while(m_renderWindow.isOpen()){
-        if(is_running){
-            readInput();
-            update();
-        } else {
-            processPause();
+        switch (currentState){
+            case running:
+                elapsed += clock.restart().asMilliseconds();
+                readInput();
+                update();
+                break;
+            case pause_state:
+                processPause();
+                break;
+            case fail:
+                processFail();
+                break;
         }
         draw();
     }
@@ -165,7 +188,11 @@ void Game::readInput() {
                     is_rotate_clicked = true;
                     break;
                 case sf::Keyboard::P:
-                    is_running = !is_running;
+                    if(currentState == running){
+                        currentState = pause_state;
+                    } else {
+                        currentState = running;
+                    }
                     break;
                 default:
                     break;
@@ -175,7 +202,12 @@ void Game::readInput() {
 }
 
 void Game::update() {
+
     tetromino.clear(map);
+    if(elapsed >= 1000){
+        elapsed = 0;
+        tetromino.move(0, 1, map);
+    }
     if(dx || dy){
         tetromino.move(dx, dy, map);
     }
@@ -183,7 +215,6 @@ void Game::update() {
         tetromino.rotate(map);
     }
     tetromino.draw(map);
-
     need_to_remove = calc_rows();
     if(need_to_remove){
         //DRAWING IN UPDATE
@@ -192,9 +223,14 @@ void Game::update() {
     }
     need_to_remove = false;
 
+    if(tetromino.checkFail(map)){
+        currentState = fail;
+    }
+
     dx = 0, dy = 0;
     is_rotate_clicked = false;
 }
+
 
 void Game::draw_next_shape() {
     int mini_size = CELL_SIZE;
@@ -246,7 +282,7 @@ void Game::draw() {
         }
     }
 
-    if(!is_running){
+    if(currentState == pause_state){
         m_renderWindow.draw(m_filterRect);
         m_renderWindow.draw(m_pauseRect);
         //
@@ -257,6 +293,11 @@ void Game::draw() {
         coords[2] = drawMenu("Exit", text, m_pauseRect, 40);
         //draw index
         drawIndex();
+    }
+    if(currentState == fail){
+        m_renderWindow.draw(m_filterRect);
+        m_renderWindow.draw(m_pauseRect);
+        drawMenu("YOU LOOSE!", m_pauseRect, m_pauseRect, 50);
     }
     m_renderWindow.display();
 }
